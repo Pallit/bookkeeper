@@ -1,12 +1,8 @@
 import sqlite3
 
-from itertools import count
 from typing import Any
 from inspect import get_annotations
 from bookkeeper.repository.abstract_repository import AbstractRepository, T
-from bookkeeper.models.category import Category
-from bookkeeper.models.expense import Expense
-from bookkeeper.models.budget import Budget
 
 
 class SqliteRepository(AbstractRepository[T]):
