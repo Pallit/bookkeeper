@@ -18,10 +18,11 @@ class SqliteRepository(AbstractRepository[T]):
         self.type = cls
 
     def add(self, obj: T) -> int:
+        if getattr(obj, 'pk', None) != 0:
+            raise ValueError(f'trying to add object {obj} with filled `pk` attribute')
         names = ', '.join(self.fields.keys())
         placeholders = ', '.join("?" * len(self.fields))
         values = [getattr(obj, x) for x in self.fields]
-        print(f'INSERT INTO {self.table_name} ({names}) VALUES ({placeholders})')
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
