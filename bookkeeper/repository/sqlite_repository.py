@@ -1,6 +1,6 @@
 import sqlite3
 
-from typing import Any
+from typing import Any, Optional
 from inspect import get_annotations
 from bookkeeper.repository.abstract_repository import AbstractRepository, T
 
@@ -26,7 +26,7 @@ class SqliteRepository(AbstractRepository[T]):
                 f'INSERT INTO {self.table_name} ({names}) VALUES ({placeholders})',
                 values
             )
-            obj.pk = cur.lastrowid
+            obj.pk = cur.lastrowid if cur.lastrowid is not None else 0
         con.close()
         return obj.pk
 
@@ -36,9 +36,9 @@ class SqliteRepository(AbstractRepository[T]):
             cur.execute(f'SELECT * FROM {self.table_name} WHERE pk={pk}')
             row = cur.fetchall()
         con.close()
-        if len(row) == 0:
-            return None
-        return self.type(*row[0][1:], pk)
+        obj: Optional[T]
+        obj = self.type(*row[0][1:], pk) if len(row) == 0 else None
+        return obj
 
     def get_all(self, where: dict[str, Any] | None = None) -> list[T]:
         objects = []
