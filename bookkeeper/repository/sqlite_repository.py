@@ -65,6 +65,8 @@ class SqliteRepository(AbstractRepository[T]):
         con.close()
 
     def update(self, obj: T) -> None:
+        if obj.pk == 0:
+            raise ValueError('attempt to update object with unknown primary key')
         names = ' = ? , '.join(self.fields.keys()) + ' = ?'
         values = [getattr(obj, x) for x in self.fields]
         with sqlite3.connect(self.db_file) as con:
