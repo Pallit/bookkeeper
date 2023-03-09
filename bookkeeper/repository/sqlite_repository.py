@@ -33,7 +33,12 @@ class SqliteRepository(AbstractRepository[T]):
         return obj.pk
 
     def get(self, pk: int) -> T | None:
-        return
+        with sqlite3.connect(self.db_file) as con:
+            cur = con.cursor()
+            cur.execute(f'SELECT * FROM {self.table_name} WHERE pk={pk}')
+            row = cur.fetchall()[0]
+        con.close()
+        return row
 
     def get_all(self, where: dict[str, Any] | None = None) -> list[T]:
         with sqlite3.connect(self.db_file) as con:
@@ -62,5 +67,6 @@ def repository_factory():
 r = SqliteRepository('test.sqlite', Expense)
 o = Expense(1, 1)
 o1 = Expense(amount=3, category=2)
-print(r.add(o))
+#print(r.add(o))
 #print(r.get_all())
+print(r.get(1))
