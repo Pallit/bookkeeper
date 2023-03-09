@@ -44,3 +44,8 @@ def test_cannot_add_with_pk(repo, custom_class):
     obj.pk = 1
     with pytest.raises(ValueError):
         repo.add(obj)
+
+
+def test_cannot_add_without_pk(repo):
+    with pytest.raises(ValueError):
+        repo.add(0)
