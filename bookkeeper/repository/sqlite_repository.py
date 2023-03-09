@@ -15,12 +15,13 @@ class SqliteRepository(AbstractRepository[T]):
         self.table_name = cls.__name__.lower()
         self.fields = get_annotations(cls, eval_str=True)
         self.fields.pop('pk')
+        self.type = cls
 
     def add(self, obj: T) -> int:
         names = ', '.join(self.fields.keys())
         placeholders = ', '.join("?" * len(self.fields))
         values = [getattr(obj, x) for x in self.fields]
-        print(names)
+        print(f'INSERT INTO {self.table_name} ({names}) VALUES ({placeholders})')
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
@@ -36,9 +37,11 @@ class SqliteRepository(AbstractRepository[T]):
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             cur.execute(f'SELECT * FROM {self.table_name} WHERE pk={pk}')
-            row = cur.fetchall()[0]
+            row = cur.fetchall()
         con.close()
-        return row
+        if len(row) == 0:
+            return None
+        return self.type(*row[0][1:], pk)
 
     def get_all(self, where: dict[str, Any] | None = None) -> list[T]:
         with sqlite3.connect(self.db_file) as con:
