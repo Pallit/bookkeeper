@@ -37,3 +37,10 @@ def test_crud(repo, custom_class):
     assert repo.get(pk) == obj2
     repo.delete(pk)
     assert repo.get(pk) is None
+
+
+def test_cannot_add_with_pk(repo, custom_class):
+    obj = custom_class()
+    obj.pk = 1
+    with pytest.raises(ValueError):
+        repo.add(obj)
