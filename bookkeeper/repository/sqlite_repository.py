@@ -1,3 +1,7 @@
+"""
+Модуль описывает репозиторий, работающий в sqlite
+"""
+
 import sqlite3
 
 from typing import Any, Optional
@@ -6,6 +10,10 @@ from bookkeeper.repository.abstract_repository import AbstractRepository, T
 
 
 class SqliteRepository(AbstractRepository[T]):
+    """
+    Репозиторий, работающий в sqlite. Хранит данные в БД.
+    """
+
     def __init__(self, db_file: str, cls: type) -> None:
         self.db_file = db_file
         self.table_name = cls.__name__.lower()
