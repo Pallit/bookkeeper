@@ -57,6 +57,10 @@ class SqliteRepository(AbstractRepository[T]):
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
+            cur.execute(f'SELECT * FROM {self.table_name} WHERE pk={pk}')
+            rows = cur.fetchall()
+            if len(rows) == 0:
+                raise KeyError()
             cur.execute(f'DELETE FROM {self.table_name} WHERE pk={pk}')
         con.close()
 
