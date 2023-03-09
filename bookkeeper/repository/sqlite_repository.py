@@ -50,7 +50,11 @@ class SqliteRepository(AbstractRepository[T]):
         return rows
 
     def delete(self, pk: int) -> None:
-        return
+        with sqlite3.connect(self.db_file) as con:
+            cur = con.cursor()
+            cur.execute('PRAGMA foreign_keys = ON')
+            cur.execute(f'DELETE FROM {self.table_name} WHERE pk={pk}')
+        con.close()
 
     def update(self, obj: T) -> None:
         return
@@ -69,4 +73,5 @@ o = Expense(1, 1)
 o1 = Expense(amount=3, category=2)
 #print(r.add(o))
 #print(r.get_all())
-print(r.get(1))
+#print(r.get(1))
+r.delete(1)
