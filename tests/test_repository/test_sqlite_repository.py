@@ -54,3 +54,9 @@ def test_cannot_add_without_pk(repo):
 def test_cannot_delete_unexistent(repo):
     with pytest.raises(KeyError):
         repo.delete(1)
+
+
+def test_cannot_update_without_pk(repo, custom_class):
+    obj = custom_class()
+    with pytest.raises(ValueError):
+        repo.update(obj)
