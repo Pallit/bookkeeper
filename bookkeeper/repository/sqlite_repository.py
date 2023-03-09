@@ -77,22 +77,3 @@ class SqliteRepository(AbstractRepository[T]):
                 values
             )
         con.close()
-        return
-
-
-def repository_factory():
-    return {
-        Expense: SqliteRepository('test.sqlite', Expense),
-        Category: SqliteRepository('test.sqlite', Category),
-        Budget: SqliteRepository('test.sqlite', Budget)
-    }
-
-
-r = SqliteRepository('test.sqlite', Expense)
-o = Expense(1, 1)
-o1 = Expense(amount=2, category=2, pk=2)
-# print(r.add(o))
-# print(r.get_all())
-# print(r.get(1))
-print(o1)
-r.update(o1)
