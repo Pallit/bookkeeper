@@ -41,13 +41,16 @@ class SqliteRepository(AbstractRepository[T]):
         return self.type(*row[0][1:], pk)
 
     def get_all(self, where: dict[str, Any] | None = None) -> list[T]:
+        objects = []
         with sqlite3.connect(self.db_file) as con:
             cur = con.cursor()
             cur.execute('PRAGMA foreign_keys = ON')
             cur.execute(f'SELECT * FROM {self.table_name}')
             rows = cur.fetchall()
         con.close()
-        return rows
+        for row in rows:
+            objects.append(self.type(*row[1:], row[0]))
+        return objects
 
     def delete(self, pk: int) -> None:
         with sqlite3.connect(self.db_file) as con:
