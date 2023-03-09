@@ -57,6 +57,16 @@ class SqliteRepository(AbstractRepository[T]):
         con.close()
 
     def update(self, obj: T) -> None:
+        names = ' = ? , '.join(self.fields.keys()) + ' = ?'
+        values = [getattr(obj, x) for x in self.fields]
+        with sqlite3.connect(self.db_file) as con:
+            cur = con.cursor()
+            cur.execute('PRAGMA foreign_keys = ON')
+            cur.execute(
+                f'UPDATE {self.table_name} SET {names} WHERE pk={obj.pk}',
+                values
+            )
+        con.close()
         return
 
 
@@ -70,8 +80,9 @@ def repository_factory():
 
 r = SqliteRepository('test.sqlite', Expense)
 o = Expense(1, 1)
-o1 = Expense(amount=3, category=2)
-#print(r.add(o))
-#print(r.get_all())
-#print(r.get(1))
-r.delete(1)
+o1 = Expense(amount=2, category=2, pk=2)
+# print(r.add(o))
+# print(r.get_all())
+# print(r.get(1))
+print(o1)
+r.update(o1)
