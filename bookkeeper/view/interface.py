@@ -1,15 +1,17 @@
+"""
+Модуль описывает интерфейс приложения
+"""
+
 import sys
-from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtCore import Qt, Slot
-from bookkeeper.repository.sqlite_repository import SqliteRepository
-from bookkeeper.models.expense import Expense
-from bookkeeper.models.category import Category
-from bookkeeper.models.budget import Budget
-import inspect
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtCore import Qt
 import bookkeeper.Presenter as Presenter
 
 
 class CategoryRedactor(QtWidgets.QWidget):
+    """
+    Виджет редактирования списка категорий
+    """
     def __init__(self, category_list):
         super().__init__()
         self.layout = QtWidgets.QVBoxLayout(self)
@@ -26,6 +28,9 @@ class CategoryRedactor(QtWidgets.QWidget):
         self.list = category_list
 
     def button_clicked(self):
+        """
+        Добавление новой категории
+        """
         if self.line.text() == '':
             return
         Presenter.add_category(self.line.text())
@@ -58,13 +63,17 @@ class TableModel(QtCore.QAbstractTableModel):
             return 0
         return len(self._data[0])
 
-    def headerData(self, section, orientation=QtCore.Qt.Horizontal, role=QtCore.Qt.DisplayRole):
+    def headerData(self, section, orientation=QtCore.Qt.Horizontal,
+                   role=QtCore.Qt.DisplayRole):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return self._labels[section].format(section + 1)
         return super().headerData(section, orientation, role)
 
 
 class CategoryList(QtWidgets.QWidget):
+    """
+    Виджет таблицы категорий
+    """
     def __init__(self, data_category):
         super().__init__()
         self.layout = QtWidgets.QHBoxLayout(self)
@@ -86,20 +95,29 @@ class CategoryList(QtWidgets.QWidget):
         self.redactor.setWindowTitle('Category Redactor')
         self.redactor.resize(600, 100)
 
-    def get_list_data(self):
-        return [self.list.itemText(i) for i in range(self.list.count())]
-
     def get_selected_data(self):
+        """
+        Возвращает выбранную категорию
+        """
         return self.list.currentIndex() + 1
 
     def button_clicked(self):
+        """
+        Открывает окно виджет редактирования списка категорий
+        """
         self.redactor.show()
 
     def get_list(self):
+        """
+        Возвращает список категорий
+        """
         return self.list
 
 
 class BudgetTable(QtWidgets.QWidget):
+    """
+    Виджет таблицы бюджета
+    """
     def __init__(self, data_budget, labels_budget):
         super().__init__()
         self.layout = QtWidgets.QVBoxLayout(self)
@@ -114,10 +132,16 @@ class BudgetTable(QtWidgets.QWidget):
         self.setLayout(self.layout)
 
     def get_table(self):
+        """
+        Возвращает таблицу бюджета
+        """
         return self.table
 
 
 class ExpenseTable(QtWidgets.QWidget):
+    """
+    Виджет расходов
+    """
     def __init__(self):
         super().__init__()
         data_expense, labels_expense = Presenter.get_expense_data()
@@ -126,28 +150,26 @@ class ExpenseTable(QtWidgets.QWidget):
 
         self.layout = QtWidgets.QVBoxLayout(self)
 
-        self.text = QtWidgets.QLabel('Последние расходы')
-        self.layout.addWidget(self.text)
+        self.layout.addWidget(QtWidgets.QLabel('Последние расходы'))
 
         self.table = QtWidgets.QTableView()
         self.table.setModel(TableModel(data_expense, labels_expense))
         self.layout.addWidget(self.table)
 
-        self.budgetTable = BudgetTable(data_budget, labels_budget)
-        self.layout.addWidget(self.budgetTable)
+        self.budget_table = BudgetTable(data_budget, labels_budget)
+        self.layout.addWidget(self.budget_table)
 
-        self.layoutHorizon1 = QtWidgets.QHBoxLayout()
+        layout_horizon = QtWidgets.QHBoxLayout()
 
-        self.text2 = QtWidgets.QLabel('Сумма')
-        self.layoutHorizon1.addWidget(self.text2)
+        layout_horizon.addWidget(QtWidgets.QLabel('Сумма'))
 
         self.line = QtWidgets.QLineEdit()
-        self.layoutHorizon1.addWidget(self.line)
+        layout_horizon.addWidget(self.line)
 
-        self.layout.addLayout(self.layoutHorizon1)
+        self.layout.addLayout(layout_horizon)
 
-        self.categoryList = CategoryList(data_category)
-        self.layout.addWidget(self.categoryList)
+        self.category_list = CategoryList(data_category)
+        self.layout.addWidget(self.category_list)
 
         self.button = QtWidgets.QPushButton('Добавить', self)
         self.layout.addWidget(self.button)
@@ -160,32 +182,42 @@ class ExpenseTable(QtWidgets.QWidget):
         self.setLayout(self.layout)
 
     def button_clicked(self):
+        """
+        Добавляет расход
+        """
         if self.line.text() == '':
             return
-        if self.categoryList.get_selected_data() == 0:
+        if self.category_list.get_selected_data() == 0:
             return
-        Presenter.add_expense(int(self.line.text()), self.categoryList.get_selected_data())
+        Presenter.add_expense(int(self.line.text()),
+                              self.category_list.get_selected_data())
         data_expense, labels_expense = Presenter.get_expense_data()
         self.table.setModel(TableModel(data_expense, labels_expense))
         data_budget, labels_budget = Presenter.get_budget_data()
-        self.budgetTable.get_table().setModel(TableModel(data_budget, labels_budget))
+        self.budget_table.get_table().setModel(TableModel(data_budget, labels_budget))
 
     def reset(self):
+        """
+        Сбрасывает все данные
+        """
         print("debug")
         Presenter.clear_data()
         data_expense, labels_expense = Presenter.get_expense_data()
         self.table.setModel(TableModel(data_expense, labels_expense))
         data_budget, labels_budget = Presenter.get_budget_data()
-        self.budgetTable.get_table().setModel(TableModel(data_budget, labels_budget))
-        self.categoryList.get_list().clear()
+        self.budget_table.get_table().setModel(TableModel(data_budget, labels_budget))
+        self.category_list.get_list().clear()
 
 
 class MainWindow(QtWidgets.QWidget):
+    """
+    Основное окно
+    """
     def __init__(self):
         super().__init__()
         self.layout = QtWidgets.QVBoxLayout(self)
-        self.expenseTable = ExpenseTable()
-        self.layout.addWidget(self.expenseTable)
+        self.expense_table = ExpenseTable()
+        self.layout.addWidget(self.expense_table)
         self.setLayout(self.layout)
 
 

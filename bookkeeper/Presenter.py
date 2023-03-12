@@ -1,21 +1,25 @@
+"""
+Модуль Presenter описывает функциональность посредника
+"""
+
 import bookkeeper.repository.sqlite_repository as sr
-from bookkeeper.models.budget import Budget
 from bookkeeper.models.category import Category
 from bookkeeper.models.expense import Expense
-import sqlite3
-from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtCore import Qt, Slot
-import sys
-from inspect import get_annotations
 
 
 def get_category_by_pk(pk: int):
+    """
+    Возвращает категорию по pk
+    """
     repository = sr.category_factory()
     category = repository.get(pk)
     return category
 
 
 def get_budget_data():
+    """
+    Возвращает список значений строк таблицы Budget
+    """
     repository = sr.budget_factory()
     budget_data = []
     items = repository.get_all()
@@ -26,6 +30,9 @@ def get_budget_data():
 
 
 def get_category_data():
+    """
+    Возвращает список значений строк таблицы Category
+    """
     repository = sr.category_factory()
     category_data = []
     items = repository.get_all()
@@ -35,16 +42,24 @@ def get_category_data():
 
 
 def get_expense_data():
+    """
+    Возвращает список значений строк таблицы Expense
+    """
     repository = sr.expense_factory()
     expense_data = []
     items = repository.get_all()
     for item in items:
-        expense_data.append([item.amount, get_category_by_pk(item.category).name, item.expense_date, item.comment])
+        expense_data.append(
+            [item.amount, get_category_by_pk(item.category).name, item.expense_date,
+             item.comment])
     labels = ['Сумма', 'Категория', 'Дата', 'Комментарии']
     return expense_data, labels
 
 
 def add_expense(amount: int, category: int, comment: str = ''):
+    """
+    Добавляет расход в БД
+    """
     repository_expense = sr.expense_factory()
     expense = Expense(amount=amount, category=category, comment=comment)
     repository_expense.add(expense)
@@ -57,11 +72,18 @@ def add_expense(amount: int, category: int, comment: str = ''):
 
 
 def add_category(name: str):
+    """
+    Добавляет категорию в БД
+    """
     repository = sr.category_factory()
     repository.add(Category(name=name))
 
 
 def clear_data():
+    """
+    Удаляет все строки из таблиц Expense и Category, и обнуляет в таблице Budget столбец
+    amount
+    """
     repository = sr.expense_factory()
     repository.delete_all()
     repository = sr.category_factory()

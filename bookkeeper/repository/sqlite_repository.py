@@ -98,14 +98,18 @@ class SqliteRepository(AbstractRepository[T]):
 def budget_factory():
     with sqlite3.connect('test.sqlite') as con:
         cur = con.cursor()
-        cur.execute('CREATE TABLE IF NOT EXISTS budget (pk INTEGER, period TEXT, amount INTEGER, budget INTEGER, '
-                    'PRIMARY KEY (pk))')
-        cur.execute("INSERT INTO budget(pk, period, amount, budget) SELECT 1, 'День', 0, 1000 "
-                    "WHERE NOT EXISTS(SELECT 1 FROM budget WHERE pk = 1)")
-        cur.execute("INSERT INTO budget(pk, period, amount, budget) SELECT 2, 'Неделя', 0, 7000 "
-                    "WHERE NOT EXISTS(SELECT 1 FROM budget WHERE pk = 2)")
-        cur.execute("INSERT INTO budget(pk, period, amount, budget) SELECT 3, 'Месяц', 0, 30000 "
-                    "WHERE NOT EXISTS(SELECT 1 FROM budget WHERE pk = 3)")
+        cur.execute(
+            'CREATE TABLE IF NOT EXISTS budget (pk INTEGER, period TEXT, amount '
+            'INTEGER, budget INTEGER, PRIMARY KEY (pk))')
+        cur.execute(
+            "INSERT INTO budget(pk, period, amount, budget) SELECT 1, 'День', 0, 1000 "
+            "WHERE NOT EXISTS(SELECT 1 FROM budget WHERE pk = 1)")
+        cur.execute(
+            "INSERT INTO budget(pk, period, amount, budget) SELECT 2, 'Неделя', 0, 7000 "
+            "WHERE NOT EXISTS(SELECT 1 FROM budget WHERE pk = 2)")
+        cur.execute(
+            "INSERT INTO budget(pk, period, amount, budget) SELECT 3, 'Месяц', 0, 30000 "
+            "WHERE NOT EXISTS(SELECT 1 FROM budget WHERE pk = 3)")
     con.close()
     return SqliteRepository('test.sqlite', Budget)
 
@@ -113,7 +117,9 @@ def budget_factory():
 def category_factory():
     with sqlite3.connect('test.sqlite') as con:
         cur = con.cursor()
-        cur.execute('CREATE TABLE IF NOT EXISTS category (pk INTEGER, name TEXT, parent INTEGER, PRIMARY KEY (pk))')
+        cur.execute(
+            'CREATE TABLE IF NOT EXISTS category (pk INTEGER, name TEXT, parent '
+            'INTEGER, PRIMARY KEY (pk))')
     con.close()
     return SqliteRepository('test.sqlite', Category)
 
@@ -121,7 +127,8 @@ def category_factory():
 def expense_factory():
     with sqlite3.connect('test.sqlite') as con:
         cur = con.cursor()
-        cur.execute('CREATE TABLE IF NOT EXISTS expense (pk INTEGER, amount INTEGER, category INTEGER, expense_date '
-                    'DATETIME, added_date DATETIME, PRIMARY KEY (pk))')
+        cur.execute(
+            'CREATE TABLE IF NOT EXISTS expense (pk INTEGER, amount INTEGER, category '
+            'INTEGER, expense_date DATETIME, added_date DATETIME, PRIMARY KEY (pk))')
     con.close()
     return SqliteRepository('test.sqlite', Expense)
