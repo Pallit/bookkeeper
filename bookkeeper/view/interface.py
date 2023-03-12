@@ -6,6 +6,7 @@ from bookkeeper.models.expense import Expense
 from bookkeeper.models.category import Category
 from bookkeeper.models.budget import Budget
 import inspect
+import bookkeeper.Presenter as Presenter
 
 
 class TableModel(QtCore.QAbstractTableModel):
@@ -31,7 +32,7 @@ class TableModel(QtCore.QAbstractTableModel):
 
 
 class CategoryList(QtWidgets.QWidget):
-    def __init__(self, data_budget):
+    def __init__(self, data_category):
         super().__init__()
         self.layout = QtWidgets.QHBoxLayout(self)
 
@@ -39,12 +40,19 @@ class CategoryList(QtWidgets.QWidget):
         self.layout.addWidget(self.text)
 
         self.list = QtWidgets.QComboBox()
+        self.list.addItems(data_category)
         self.layout.addWidget(self.list)
 
         self.button = QtWidgets.QPushButton('Редактировать', self)
         self.layout.addWidget(self.button)
 
         self.setLayout(self.layout)
+
+    def get_list_data(self):
+        return [self.list.itemText(i) for i in range(self.list.count())]
+
+    def get_selected_data(self):
+        return self.list.currentIndex() + 1
 
 
 class BudgetTable(QtWidgets.QWidget):
@@ -94,36 +102,27 @@ class ExpenseTable(QtWidgets.QWidget):
 
         self.button = QtWidgets.QPushButton('Добавить', self)
         self.layout.addWidget(self.button)
+        self.button.clicked.connect(self.button_clicked)
 
         self.setLayout(self.layout)
+
+    def button_clicked(self):
+        Presenter.add_expense(int(self.line.text()), self.categoryList.get_selected_data())
+        self.table.setModel(TableModel(Presenter.get_expense_data()))
 
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, data_budget, data_category, data_expense):
         super().__init__()
-        data = [
-            [4, 9, 2],
-            [1, 0, 0],
-            [3, 5, 0],
-            [3, 3, 2],
-            [7, 8, 9],
-        ]
         self.layout = QtWidgets.QVBoxLayout(self)
-        self.expenseTable = ExpenseTable(data, 1, data_expense)
+        self.expenseTable = ExpenseTable(data_budget, data_category, data_expense)
         self.layout.addWidget(self.expenseTable)
         self.setLayout(self.layout)
 
 
-
 app = QtWidgets.QApplication(sys.argv)
-rep = SqliteRepository('test.sqlite', Expense)
-data = []
-rows = rep.get_all()
-for obj in rows:
-    data.append([obj.amount, obj.category, obj.expense_date, obj.comment])
-print(data)
-window = MainWindow(1, 1, data)
+window = MainWindow(Presenter.get_budget_data(), Presenter.get_category_data(), Presenter.get_expense_data())
 window.setWindowTitle('The Bookkeeper App')
 window.show()
 window.resize(600, 600)
-app.exec_()
+app.exec()
