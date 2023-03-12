@@ -10,9 +10,11 @@ import bookkeeper.Presenter as Presenter
 
 
 class TableModel(QtCore.QAbstractTableModel):
-    def __init__(self, data):
+    def __init__(self, data, labels):
         super(TableModel, self).__init__()
         self._data = data
+        self._labels = labels
+        print(labels)
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
@@ -29,6 +31,11 @@ class TableModel(QtCore.QAbstractTableModel):
         # The following takes the first sub-list, and returns
         # the length (only works if all rows are an equal length)
         return len(self._data[0])
+
+    def headerData(self, section, orientation=QtCore.Qt.Horizontal, role=QtCore.Qt.DisplayRole):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+            return self._labels[section].format(section + 1)
+        return super().headerData(section, orientation, role)
 
 
 class CategoryList(QtWidgets.QWidget):
@@ -56,7 +63,7 @@ class CategoryList(QtWidgets.QWidget):
 
 
 class BudgetTable(QtWidgets.QWidget):
-    def __init__(self, data_budget):
+    def __init__(self, data_budget, labels_budget):
         super().__init__()
         self.layout = QtWidgets.QVBoxLayout(self)
 
@@ -64,27 +71,30 @@ class BudgetTable(QtWidgets.QWidget):
         self.layout.addWidget(self.text)
 
         self.table = QtWidgets.QTableView()
-        self.model = TableModel(data_budget)
-        self.table.setModel(self.model)
+        self.table.setModel(TableModel(data_budget, labels_budget))
         self.layout.addWidget(self.table)
 
         self.setLayout(self.layout)
 
 
 class ExpenseTable(QtWidgets.QWidget):
-    def __init__(self, data_budget, data_category, data_expense):
+    def __init__(self):
         super().__init__()
+        data_expense, labels_expense = Presenter.get_expense_data()
+        data_budget, labels_budget = Presenter.get_budget_data()
+        data_category, labels_category = Presenter.get_category_data()
+
         self.layout = QtWidgets.QVBoxLayout(self)
 
         self.text = QtWidgets.QLabel('Последние расходы')
         self.layout.addWidget(self.text)
 
         self.table = QtWidgets.QTableView()
-        self.model = TableModel(data_expense)
-        self.table.setModel(self.model)
+        print(labels_expense)
+        self.table.setModel(TableModel(data_expense, labels_expense))
         self.layout.addWidget(self.table)
 
-        self.budgetTable = BudgetTable(data_budget)
+        self.budgetTable = BudgetTable(data_budget, labels_budget)
         self.layout.addWidget(self.budgetTable)
 
         self.layoutHorizon1 = QtWidgets.QHBoxLayout()
@@ -115,7 +125,7 @@ class MainWindow(QtWidgets.QWidget):
     def __init__(self, data_budget, data_category, data_expense):
         super().__init__()
         self.layout = QtWidgets.QVBoxLayout(self)
-        self.expenseTable = ExpenseTable(data_budget, data_category, data_expense)
+        self.expenseTable = ExpenseTable()
         self.layout.addWidget(self.expenseTable)
         self.setLayout(self.layout)
 

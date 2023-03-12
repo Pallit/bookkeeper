@@ -6,6 +6,7 @@ import sqlite3
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, Slot
 import sys
+from inspect import get_annotations
 
 
 def get_budget_data():
@@ -14,7 +15,8 @@ def get_budget_data():
     items = repository.get_all()
     for item in items:
         budget_data.append([item.period, item.amount, item.budget])
-    return budget_data
+    labels = list(get_annotations(Budget, eval_str=True).keys())
+    return budget_data, labels
 
 
 def get_category_data():
@@ -23,7 +25,8 @@ def get_category_data():
     items = repository.get_all()
     for item in items:
         category_data.append(item.name)
-    return category_data
+    labels = list(get_annotations(Category, eval_str=True).keys())
+    return category_data, labels
 
 
 def get_expense_data():
@@ -32,7 +35,8 @@ def get_expense_data():
     items = repository.get_all()
     for item in items:
         expense_data.append([item.amount, item.category, item.expense_date, item.comment])
-    return expense_data
+    labels = list(get_annotations(Expense, eval_str=True).keys())
+    return expense_data, labels
 
 
 def add_expense(amount: int, category: int, comment: str = ''):
