@@ -14,7 +14,6 @@ class TableModel(QtCore.QAbstractTableModel):
         super(TableModel, self).__init__()
         self._data = data
         self._labels = labels
-        print(labels)
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
@@ -90,7 +89,6 @@ class ExpenseTable(QtWidgets.QWidget):
         self.layout.addWidget(self.text)
 
         self.table = QtWidgets.QTableView()
-        print(labels_expense)
         self.table.setModel(TableModel(data_expense, labels_expense))
         self.layout.addWidget(self.table)
 
@@ -118,7 +116,8 @@ class ExpenseTable(QtWidgets.QWidget):
 
     def button_clicked(self):
         Presenter.add_expense(int(self.line.text()), self.categoryList.get_selected_data())
-        self.table.setModel(TableModel(Presenter.get_expense_data()))
+        data_expense, labels_expense = Presenter.get_expense_data()
+        self.table.setModel(TableModel(data_expense, labels_expense))
 
 
 class MainWindow(QtWidgets.QWidget):
