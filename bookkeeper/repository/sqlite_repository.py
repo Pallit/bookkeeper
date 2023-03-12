@@ -100,6 +100,12 @@ def budget_factory():
         cur = con.cursor()
         cur.execute('CREATE TABLE IF NOT EXISTS budget (pk INTEGER, period TEXT, amount INTEGER, budget INTEGER, '
                     'PRIMARY KEY (pk))')
+        cur.execute("INSERT INTO budget(pk, period, amount, budget) SELECT 1, 'День', 0, 1000 "
+                    "WHERE NOT EXISTS(SELECT 1 FROM budget WHERE pk = 1)")
+        cur.execute("INSERT INTO budget(pk, period, amount, budget) SELECT 2, 'Неделя', 0, 7000 "
+                    "WHERE NOT EXISTS(SELECT 1 FROM budget WHERE pk = 2)")
+        cur.execute("INSERT INTO budget(pk, period, amount, budget) SELECT 3, 'Месяц', 0, 30000 "
+                    "WHERE NOT EXISTS(SELECT 1 FROM budget WHERE pk = 3)")
     con.close()
     return SqliteRepository('test.sqlite', Budget)
 
