@@ -1,6 +1,6 @@
 import sys
 from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Slot
 from bookkeeper.repository.sqlite_repository import SqliteRepository
 from bookkeeper.models.expense import Expense
 from bookkeeper.models.category import Category
@@ -30,20 +30,77 @@ class TableModel(QtCore.QAbstractTableModel):
         return len(self._data[0])
 
 
-class MainWindow(QtWidgets.QWidget):
-    def __init__(self, dataExpense, dataCategory, dataBudget):
+class CategoryList(QtWidgets.QWidget):
+    def __init__(self, data_budget):
         super().__init__()
+        self.layout = QtWidgets.QHBoxLayout(self)
 
-        self.text1 = QtWidgets.QLabel('Последние расходы')
-        self.table1 = QtWidgets.QTableView()
-        self.text2 = QtWidgets.QLabel('Бюджет')
-        self.table2 = QtWidgets.QTableView()
-        self.text3 = QtWidgets.QLabel('Сумма')
-        self.line = QtWidgets.QLineEdit()
-        self.text4 = QtWidgets.QLabel('Категория')
+        self.text = QtWidgets.QLabel('Категория')
+        self.layout.addWidget(self.text)
+
         self.list = QtWidgets.QComboBox()
-        self.button1 = QtWidgets.QPushButton('Редактировать', self)
-        self.button2 = QtWidgets.QPushButton('Добавить', self)
+        self.layout.addWidget(self.list)
+
+        self.button = QtWidgets.QPushButton('Редактировать', self)
+        self.layout.addWidget(self.button)
+
+        self.setLayout(self.layout)
+
+
+class BudgetTable(QtWidgets.QWidget):
+    def __init__(self, data_budget):
+        super().__init__()
+        self.layout = QtWidgets.QVBoxLayout(self)
+
+        self.text = QtWidgets.QLabel('Бюджет')
+        self.layout.addWidget(self.text)
+
+        self.table = QtWidgets.QTableView()
+        self.model = TableModel(data_budget)
+        self.table.setModel(self.model)
+        self.layout.addWidget(self.table)
+
+        self.setLayout(self.layout)
+
+
+class ExpenseTable(QtWidgets.QWidget):
+    def __init__(self, data_budget, data_category, data_expense):
+        super().__init__()
+        self.layout = QtWidgets.QVBoxLayout(self)
+
+        self.text = QtWidgets.QLabel('Последние расходы')
+        self.layout.addWidget(self.text)
+
+        self.table = QtWidgets.QTableView()
+        self.model = TableModel(data_expense)
+        self.table.setModel(self.model)
+        self.layout.addWidget(self.table)
+
+        self.budgetTable = BudgetTable(data_budget)
+        self.layout.addWidget(self.budgetTable)
+
+        self.layoutHorizon1 = QtWidgets.QHBoxLayout()
+
+        self.text2 = QtWidgets.QLabel('Сумма')
+        self.layoutHorizon1.addWidget(self.text2)
+
+        self.line = QtWidgets.QLineEdit()
+        self.layoutHorizon1.addWidget(self.line)
+
+        self.layout.addLayout(self.layoutHorizon1)
+
+        self.categoryList = CategoryList(data_category)
+        self.layout.addWidget(self.categoryList)
+
+        self.button = QtWidgets.QPushButton('Добавить', self)
+        self.layout.addWidget(self.button)
+
+        self.setLayout(self.layout)
+
+
+class MainWindow(QtWidgets.QWidget):
+    def __init__(self, data_budget, data_category, data_expense):
+        super().__init__()
         data = [
             [4, 9, 2],
             [1, 0, 0],
@@ -51,29 +108,11 @@ class MainWindow(QtWidgets.QWidget):
             [3, 3, 2],
             [7, 8, 9],
         ]
-
-        self.model1 = TableModel(dataExpense)
-        self.table1.setModel(self.model1)
-        self.model2 = TableModel(data)
-        self.table2.setModel(self.model2)
-
         self.layout = QtWidgets.QVBoxLayout(self)
-        self.layout.addWidget(self.text1)
-        self.layout.addWidget(self.table1)
-        self.layout.addWidget(self.text2)
-        self.layout.addWidget(self.table2)
-        self.layoutHorizon1 = QtWidgets.QHBoxLayout()
-        self.layoutHorizon1.addWidget(self.text3)
-        self.layoutHorizon1.addWidget(self.line)
-        self.layout.addLayout(self.layoutHorizon1)
-        self.layoutHorizon2 = QtWidgets.QHBoxLayout()
-        self.layoutHorizon2.addWidget(self.text4)
-        self.layoutHorizon2.addWidget(self.list)
-        self.layoutHorizon2.addWidget(self.button1)
-        self.layout.addLayout(self.layoutHorizon2)
-        self.layoutHorizon3 = QtWidgets.QHBoxLayout()
-        self.layoutHorizon3.addWidget(self.button2)
-        self.layout.addLayout(self.layoutHorizon3)
+        self.expenseTable = ExpenseTable(data, 1, data_expense)
+        self.layout.addWidget(self.expenseTable)
+        self.setLayout(self.layout)
+
 
 
 app = QtWidgets.QApplication(sys.argv)
@@ -83,7 +122,7 @@ rows = rep.get_all()
 for obj in rows:
     data.append([obj.amount, obj.category, obj.expense_date, obj.comment])
 print(data)
-window = MainWindow(data, 1, 1)
+window = MainWindow(1, 1, data)
 window.setWindowTitle('The Bookkeeper App')
 window.show()
 window.resize(600, 600)
