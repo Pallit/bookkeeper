@@ -9,6 +9,12 @@ import sys
 from inspect import get_annotations
 
 
+def get_category_by_pk(pk: int):
+    repository = sr.category_factory()
+    category = repository.get(pk)
+    return category
+
+
 def get_budget_data():
     repository = sr.budget_factory()
     budget_data = []
@@ -33,7 +39,7 @@ def get_expense_data():
     expense_data = []
     items = repository.get_all()
     for item in items:
-        expense_data.append([item.amount, item.category, item.expense_date, item.comment])
+        expense_data.append([item.amount, get_category_by_pk(item.category).name, item.expense_date, item.comment])
     labels = ['Сумма', 'Категория', 'Дата', 'Комментарии']
     return expense_data, labels
 

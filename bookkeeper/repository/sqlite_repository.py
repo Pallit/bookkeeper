@@ -49,7 +49,7 @@ class SqliteRepository(AbstractRepository[T]):
             row = cur.fetchall()
         con.close()
         obj: Optional[T]
-        obj = self.type(*row[0][1:], pk) if len(row) == 0 else None
+        obj = self.type(*row[0][1:], pk) if len(row) != 0 else None
         return obj
 
     def get_all(self, where: dict[str, Any] | None = None) -> list[T]:
