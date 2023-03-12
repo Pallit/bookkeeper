@@ -7,6 +7,9 @@ import sqlite3
 from typing import Any, Optional
 from inspect import get_annotations
 from bookkeeper.repository.abstract_repository import AbstractRepository, T
+from bookkeeper.models.budget import Budget
+from bookkeeper.models.category import Category
+from bookkeeper.models.expense import Expense
 
 
 class SqliteRepository(AbstractRepository[T]):
@@ -84,3 +87,31 @@ class SqliteRepository(AbstractRepository[T]):
                 values
             )
         con.close()
+
+
+def budget_factory():
+    with sqlite3.connect('test.sqlite') as con:
+        cur = con.cursor()
+        cur.execute('DROP TABLE IF EXISTS budget')
+        cur.execute('CREATE TABLE budget (pk INTEGER, amount INTEGER, budget INTEGER, PRIMARY KEY (pk))')
+    con.close()
+    return SqliteRepository('test.sqlite', Budget)
+
+
+def category_factory():
+    with sqlite3.connect('test.sqlite') as con:
+        cur = con.cursor()
+        cur.execute('DROP TABLE IF EXISTS category')
+        cur.execute('CREATE TABLE category (pk INTEGER, name TEXT, budget INTEGER, PRIMARY KEY (pk))')
+    con.close()
+    return SqliteRepository('test.sqlite', Category)
+
+
+def expense_factory():
+    with sqlite3.connect('test.sqlite') as con:
+        cur = con.cursor()
+        cur.execute('DROP TABLE IF EXISTS expense')
+        cur.execute('CREATE TABLE expense (pk INTEGER, amount INTEGER, category INTEGER, expense_date DATETIME, '
+                    'added_date DATETIME, PRIMARY KEY (pk))')
+    con.close()
+    return SqliteRepository('test.sqlite', Expense)
