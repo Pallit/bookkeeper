@@ -9,6 +9,30 @@ import inspect
 import bookkeeper.Presenter as Presenter
 
 
+class CategoryRedactor(QtWidgets.QWidget):
+    def __init__(self, category_list):
+        super().__init__()
+        self.layout = QtWidgets.QVBoxLayout(self)
+
+        self.line = QtWidgets.QLineEdit()
+        self.layout.addWidget(self.line)
+
+        self.button = QtWidgets.QPushButton('Добавить категорию', self)
+        self.button.clicked.connect(self.button_clicked)
+        self.layout.addWidget(self.button)
+
+        self.setLayout(self.layout)
+
+        self.list = category_list
+
+    def button_clicked(self):
+        print("debug")
+        Presenter.add_category(self.line.text())
+        data_category = Presenter.get_category_data()
+        self.list.clear()
+        self.list.addItems(data_category)
+
+
 class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, data, labels):
         super(TableModel, self).__init__()
@@ -50,15 +74,23 @@ class CategoryList(QtWidgets.QWidget):
         self.layout.addWidget(self.list)
 
         self.button = QtWidgets.QPushButton('Редактировать', self)
+        self.button.clicked.connect(self.button_clicked)
         self.layout.addWidget(self.button)
 
         self.setLayout(self.layout)
+
+        self.redactor = CategoryRedactor(self.list)
+        self.redactor.setWindowTitle('Category Redactor')
+        self.redactor.resize(600, 100)
 
     def get_list_data(self):
         return [self.list.itemText(i) for i in range(self.list.count())]
 
     def get_selected_data(self):
         return self.list.currentIndex() + 1
+
+    def button_clicked(self):
+        self.redactor.show()
 
 
 class BudgetTable(QtWidgets.QWidget):
@@ -74,7 +106,6 @@ class BudgetTable(QtWidgets.QWidget):
         self.layout.addWidget(self.table)
 
         self.setLayout(self.layout)
-
 
     def get_table(self):
         return self.table
@@ -127,7 +158,7 @@ class ExpenseTable(QtWidgets.QWidget):
 
 
 class MainWindow(QtWidgets.QWidget):
-    def __init__(self, data_budget, data_category, data_expense):
+    def __init__(self):
         super().__init__()
         self.layout = QtWidgets.QVBoxLayout(self)
         self.expenseTable = ExpenseTable()
@@ -136,7 +167,7 @@ class MainWindow(QtWidgets.QWidget):
 
 
 app = QtWidgets.QApplication(sys.argv)
-window = MainWindow(Presenter.get_budget_data(), Presenter.get_category_data(), Presenter.get_expense_data())
+window = MainWindow()
 window.setWindowTitle('The Bookkeeper App')
 window.show()
 window.resize(600, 600)

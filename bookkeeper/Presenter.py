@@ -56,3 +56,6 @@ def add_expense(amount: int, category: int, comment: str = ''):
         repository_budget.update(current_budget)
 
 
+def add_category(name: str):
+    repository = sr.category_factory()
+    repository.add(Category(name=name))
