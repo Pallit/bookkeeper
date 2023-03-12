@@ -12,31 +12,61 @@ class CategoryRedactor(QtWidgets.QWidget):
     """
     Виджет редактирования списка категорий
     """
-    def __init__(self, category_list):
+    def __init__(self, category_list, indeces):
         super().__init__()
         self.layout = QtWidgets.QVBoxLayout(self)
 
         self.line = QtWidgets.QLineEdit()
         self.layout.addWidget(self.line)
 
-        self.button = QtWidgets.QPushButton('Добавить категорию', self)
-        self.button.clicked.connect(self.button_clicked)
-        self.layout.addWidget(self.button)
+        layout_horizon = QtWidgets.QHBoxLayout()
+
+        self.button_add = QtWidgets.QPushButton('Добавить категорию', self)
+        self.button_add.clicked.connect(self.add_category)
+        layout_horizon.addWidget(self.button_add)
+
+        self.button_delete = QtWidgets.QPushButton('Удалить категорию', self)
+        self.button_delete.clicked.connect(self.delete_category)
+        layout_horizon.addWidget(self.button_delete)
+
+        self.layout.addLayout(layout_horizon)
 
         self.setLayout(self.layout)
 
         self.list = category_list
 
-    def button_clicked(self):
+        self.indeces = indeces
+
+    def add_category(self):
         """
         Добавление новой категории
         """
         if self.line.text() == '':
             return
-        Presenter.add_category(self.line.text())
+        index = Presenter.add_category(self.line.text())
+        self.indeces.append(index)
         data_category = Presenter.get_category_data()
         self.list.clear()
         self.list.addItems(data_category)
+        self.line.clear()
+
+    def delete_category(self):
+        """
+        Удаление категории
+        """
+        if self.line.text() == '':
+            return
+        items = [self.list.itemText(i) for i in range(self.list.count())]
+        ind = items.index(self.line.text()) if self.line.text() in items else -1
+        if ind == -1:
+            return
+        Presenter.delete_category(self.indeces[ind])
+        self.indeces.pop(ind)
+
+        data_category = Presenter.get_category_data()
+        self.list.clear()
+        self.list.addItems(data_category)
+        self.line.clear()
 
 
 class TableModel(QtCore.QAbstractTableModel):
@@ -91,7 +121,8 @@ class CategoryList(QtWidgets.QWidget):
 
         self.setLayout(self.layout)
 
-        self.redactor = CategoryRedactor(self.list)
+        self.indeces = Presenter.get_category_indeces()
+        self.redactor = CategoryRedactor(self.list, self.indeces)
         self.redactor.setWindowTitle('Category Redactor')
         self.redactor.resize(600, 100)
 
@@ -99,7 +130,7 @@ class CategoryList(QtWidgets.QWidget):
         """
         Возвращает выбранную категорию
         """
-        return self.list.currentIndex() + 1
+        return self.indeces[self.list.currentIndex()] #self.list.currentIndex() + 1
 
     def button_clicked(self):
         """

@@ -76,7 +76,7 @@ def add_category(name: str):
     Добавляет категорию в БД
     """
     repository = sr.category_factory()
-    repository.add(Category(name=name))
+    return repository.add(Category(name=name))
 
 
 def clear_data():
@@ -93,3 +93,23 @@ def clear_data():
         current_budget = repository.get(i)
         current_budget.amount = 0
         repository.update(current_budget)
+
+
+def get_category_indeces():
+    """
+    Возвращает все pk в таблице Category
+    """
+    repository = sr.category_factory()
+    category_data = []
+    items = repository.get_all()
+    for item in items:
+        category_data.append(item.pk)
+    return category_data
+
+
+def delete_category(pk: int):
+    """
+    Удаляет категорию из БД по pk
+    """
+    repository = sr.category_factory()
+    repository.delete(pk)
