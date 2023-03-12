@@ -43,6 +43,13 @@ class CategoryRedactor(QtWidgets.QWidget):
         """
         if self.line.text() == '':
             return
+        items = [self.list.itemText(i) for i in range(self.list.count())]
+        if self.line.text() in items:
+            data_category = Presenter.get_category_data()
+            self.list.clear()
+            self.list.addItems(data_category)
+            self.line.clear()
+            return
         index = Presenter.add_category(self.line.text())
         self.indeces.append(index)
         data_category = Presenter.get_category_data()
@@ -61,8 +68,8 @@ class CategoryRedactor(QtWidgets.QWidget):
         if ind == -1:
             return
         Presenter.delete_category(self.indeces[ind])
+        print(ind, self.indeces[ind])
         self.indeces.pop(ind)
-
         data_category = Presenter.get_category_data()
         self.list.clear()
         self.list.addItems(data_category)
