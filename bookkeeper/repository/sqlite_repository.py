@@ -28,6 +28,7 @@ class SqliteRepository(AbstractRepository[T]):
         if getattr(obj, 'pk', None) != 0:
             raise ValueError(f'trying to add object {obj} with filled `pk` attribute')
         names = ', '.join(self.fields.keys())
+        print(names)
         placeholders = ', '.join("?" * len(self.fields))
         values = [getattr(obj, x) for x in self.fields]
         with sqlite3.connect(self.db_file) as con:
@@ -92,8 +93,7 @@ class SqliteRepository(AbstractRepository[T]):
 def budget_factory():
     with sqlite3.connect('test.sqlite') as con:
         cur = con.cursor()
-        cur.execute('DROP TABLE IF EXISTS budget')
-        cur.execute('CREATE TABLE budget (pk INTEGER, amount INTEGER, budget INTEGER, PRIMARY KEY (pk))')
+        cur.execute('CREATE TABLE IF NOT EXISTS budget (pk INTEGER, amount INTEGER, budget INTEGER, PRIMARY KEY (pk))')
     con.close()
     return SqliteRepository('test.sqlite', Budget)
 
@@ -101,8 +101,7 @@ def budget_factory():
 def category_factory():
     with sqlite3.connect('test.sqlite') as con:
         cur = con.cursor()
-        cur.execute('DROP TABLE IF EXISTS category')
-        cur.execute('CREATE TABLE category (pk INTEGER, name TEXT, budget INTEGER, PRIMARY KEY (pk))')
+        cur.execute('CREATE TABLE IF NOT EXISTS category (pk INTEGER, name TEXT, parent INTEGER, PRIMARY KEY (pk))')
     con.close()
     return SqliteRepository('test.sqlite', Category)
 
@@ -110,8 +109,7 @@ def category_factory():
 def expense_factory():
     with sqlite3.connect('test.sqlite') as con:
         cur = con.cursor()
-        cur.execute('DROP TABLE IF EXISTS expense')
-        cur.execute('CREATE TABLE expense (pk INTEGER, amount INTEGER, category INTEGER, expense_date DATETIME, '
-                    'added_date DATETIME, PRIMARY KEY (pk))')
+        cur.execute('CREATE TABLE IF NOT EXISTS expense (pk INTEGER, amount INTEGER, category INTEGER, expense_date '
+                    'DATETIME, added_date DATETIME, PRIMARY KEY (pk))')
     con.close()
     return SqliteRepository('test.sqlite', Expense)
