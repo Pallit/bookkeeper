@@ -59,3 +59,15 @@ def add_expense(amount: int, category: int, comment: str = ''):
 def add_category(name: str):
     repository = sr.category_factory()
     repository.add(Category(name=name))
+
+
+def clear_data():
+    repository = sr.expense_factory()
+    repository.delete_all()
+    repository = sr.category_factory()
+    repository.delete_all()
+    repository = sr.budget_factory()
+    for i in range(1, 4):
+        current_budget = repository.get(i)
+        current_budget.amount = 0
+        repository.update(current_budget)

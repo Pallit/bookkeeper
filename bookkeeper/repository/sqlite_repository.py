@@ -74,6 +74,12 @@ class SqliteRepository(AbstractRepository[T]):
             cur.execute(f'DELETE FROM {self.table_name} WHERE pk={pk}')
         con.close()
 
+    def delete_all(self) -> None:
+        with sqlite3.connect(self.db_file) as con:
+            cur = con.cursor()
+            cur.execute(f'DELETE FROM {self.table_name} WHERE True')
+        con.close()
+
     def update(self, obj: T) -> None:
         if obj.pk == 0:
             raise ValueError('attempt to update object with unknown primary key')

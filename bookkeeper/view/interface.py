@@ -26,7 +26,8 @@ class CategoryRedactor(QtWidgets.QWidget):
         self.list = category_list
 
     def button_clicked(self):
-        print("debug")
+        if self.line.text() == '':
+            return
         Presenter.add_category(self.line.text())
         data_category = Presenter.get_category_data()
         self.list.clear()
@@ -53,6 +54,8 @@ class TableModel(QtCore.QAbstractTableModel):
     def columnCount(self, index):
         # The following takes the first sub-list, and returns
         # the length (only works if all rows are an equal length)
+        if len(self._data) == 0:
+            return 0
         return len(self._data[0])
 
     def headerData(self, section, orientation=QtCore.Qt.Horizontal, role=QtCore.Qt.DisplayRole):
@@ -91,6 +94,9 @@ class CategoryList(QtWidgets.QWidget):
 
     def button_clicked(self):
         self.redactor.show()
+
+    def get_list(self):
+        return self.list
 
 
 class BudgetTable(QtWidgets.QWidget):
@@ -147,14 +153,31 @@ class ExpenseTable(QtWidgets.QWidget):
         self.layout.addWidget(self.button)
         self.button.clicked.connect(self.button_clicked)
 
+        self.button_reset = QtWidgets.QPushButton('Сбросить все данные', self)
+        self.layout.addWidget(self.button_reset)
+        self.button_reset.clicked.connect(self.reset)
+
         self.setLayout(self.layout)
 
     def button_clicked(self):
+        if self.line.text() == '':
+            return
+        if self.categoryList.get_selected_data() == 0:
+            return
         Presenter.add_expense(int(self.line.text()), self.categoryList.get_selected_data())
         data_expense, labels_expense = Presenter.get_expense_data()
         self.table.setModel(TableModel(data_expense, labels_expense))
         data_budget, labels_budget = Presenter.get_budget_data()
         self.budgetTable.get_table().setModel(TableModel(data_budget, labels_budget))
+
+    def reset(self):
+        print("debug")
+        Presenter.clear_data()
+        data_expense, labels_expense = Presenter.get_expense_data()
+        self.table.setModel(TableModel(data_expense, labels_expense))
+        data_budget, labels_budget = Presenter.get_budget_data()
+        self.budgetTable.get_table().setModel(TableModel(data_budget, labels_budget))
+        self.categoryList.get_list().clear()
 
 
 class MainWindow(QtWidgets.QWidget):
