@@ -76,6 +76,10 @@ class BudgetTable(QtWidgets.QWidget):
         self.setLayout(self.layout)
 
 
+    def get_table(self):
+        return self.table
+
+
 class ExpenseTable(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
@@ -118,6 +122,8 @@ class ExpenseTable(QtWidgets.QWidget):
         Presenter.add_expense(int(self.line.text()), self.categoryList.get_selected_data())
         data_expense, labels_expense = Presenter.get_expense_data()
         self.table.setModel(TableModel(data_expense, labels_expense))
+        data_budget, labels_budget = Presenter.get_budget_data()
+        self.budgetTable.get_table().setModel(TableModel(data_budget, labels_budget))
 
 
 class MainWindow(QtWidgets.QWidget):

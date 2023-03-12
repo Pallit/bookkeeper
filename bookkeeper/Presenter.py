@@ -45,8 +45,14 @@ def get_expense_data():
 
 
 def add_expense(amount: int, category: int, comment: str = ''):
-    print(amount)
-    repository = sr.expense_factory()
+    repository_expense = sr.expense_factory()
     expense = Expense(amount=amount, category=category, comment=comment)
-    repository.add(expense)
+    repository_expense.add(expense)
+
+    repository_budget = sr.budget_factory()
+    for i in range(1, 4):
+        current_budget = repository_budget.get(i)
+        current_budget.amount += amount
+        repository_budget.update(current_budget)
+
 
