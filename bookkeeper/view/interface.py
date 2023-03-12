@@ -82,7 +82,7 @@ class ExpenseTable(QtWidgets.QWidget):
         super().__init__()
         data_expense, labels_expense = Presenter.get_expense_data()
         data_budget, labels_budget = Presenter.get_budget_data()
-        data_category, labels_category = Presenter.get_category_data()
+        data_category = Presenter.get_category_data()
 
         self.layout = QtWidgets.QVBoxLayout(self)
 

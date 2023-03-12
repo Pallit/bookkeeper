@@ -15,7 +15,7 @@ def get_budget_data():
     items = repository.get_all()
     for item in items:
         budget_data.append([item.period, item.amount, item.budget])
-    labels = list(get_annotations(Budget, eval_str=True).keys())
+    labels = ['', 'Сумма', 'Бюджет']
     return budget_data, labels
 
 
@@ -25,8 +25,7 @@ def get_category_data():
     items = repository.get_all()
     for item in items:
         category_data.append(item.name)
-    labels = list(get_annotations(Category, eval_str=True).keys())
-    return category_data, labels
+    return category_data
 
 
 def get_expense_data():
@@ -35,7 +34,7 @@ def get_expense_data():
     items = repository.get_all()
     for item in items:
         expense_data.append([item.amount, item.category, item.expense_date, item.comment])
-    labels = list(get_annotations(Expense, eval_str=True).keys())
+    labels = ['Сумма', 'Категория', 'Дата', 'Комментарии']
     return expense_data, labels
 
 
