@@ -128,7 +128,8 @@ def expense_factory():
     with sqlite3.connect('test.sqlite') as con:
         cur = con.cursor()
         cur.execute(
-            'CREATE TABLE IF NOT EXISTS expense (pk INTEGER, amount INTEGER, category '
-            'INTEGER, expense_date DATETIME, added_date DATETIME, PRIMARY KEY (pk))')
+            'CREATE TABLE IF NOT EXISTS expense (pk INTEGER, amount INTEGER, '
+            'category INTEGER, expense_date DATETIME, added_date DATETIME, '
+            'comment TEXT, PRIMARY KEY (pk))')
     con.close()
     return SqliteRepository('test.sqlite', Expense)

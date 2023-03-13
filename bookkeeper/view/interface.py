@@ -137,7 +137,9 @@ class CategoryList(QtWidgets.QWidget):
         """
         Возвращает выбранную категорию
         """
-        return self.indeces[self.list.currentIndex()] #self.list.currentIndex() + 1
+        if len(self.indeces) == 0:
+            return 0
+        return self.indeces[self.list.currentIndex()]
 
     def button_clicked(self):
         """
