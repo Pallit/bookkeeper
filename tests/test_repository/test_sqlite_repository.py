@@ -85,9 +85,8 @@ def test_get_all(repo, custom_class):
 
 def test_budget():
     repo = budget_factory()
-    budget = Budget('День', 1, 1)
-    pk = repo.add(budget)
-    assert repo.get(pk) == budget
+    budget = Budget('День', 0, 1000, 1)
+    assert repo.get(1) == budget
 
 
 def test_category():
